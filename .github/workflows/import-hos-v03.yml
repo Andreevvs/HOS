@@ -1,0 +1,33 @@
+name: Import HOS KB v0.3
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/import-hos-v03.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reconstruct and unpack KB
+        shell: bash
+        run: |
+          cat .import/v0.3.part1 .import/v0.3.part2 .import/v0.3.part3 .import/v0.3.part4 .import/v0.3.part5 | base64 -d > /tmp/HOS_KB_v0.3.zip
+          unzip -oq /tmp/HOS_KB_v0.3.zip -d .
+          rm -rf .import
+          rm -f .github/workflows/import-hos-v03.yml
+          rmdir .github/workflows 2>/dev/null || true
+          rmdir .github 2>/dev/null || true
+      - name: Commit canonical KB
+        shell: bash
+        run: |
+          git config user.name 'ChatGPT Codex Connector'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Import canonical HOS KB v0.3' || exit 0
+          git push
