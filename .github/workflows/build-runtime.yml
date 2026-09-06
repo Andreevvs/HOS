@@ -1,0 +1,45 @@
+name: Build HOS Runtime KB
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '00 — Индекс HOS.md'
+      - '01 — Канон/**'
+      - '02 — Линии/**'
+      - '03 — Диагностика/**'
+      - '04 — Гипотезы/**'
+      - '05 — Эмпирика/**'
+      - '06 — Источники/**'
+      - '07 — Техники/**'
+      - 'scripts/build_runtime.py'
+      - '.github/workflows/build-runtime.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout canonical KB
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Build and validate Runtime KB
+        run: python scripts/build_runtime.py
+
+      - name: Upload Runtime KB
+        uses: actions/upload-artifact@v4
+        with:
+          name: HOS_KB_Runtime-${{ github.sha }}
+          path: HOS_KB_Runtime.md
+          if-no-files-found: error
+          retention-days: 90
