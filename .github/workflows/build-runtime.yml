@@ -17,7 +17,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -26,7 +26,7 @@ jobs:
       - name: Checkout canonical KB
         uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -36,10 +36,26 @@ jobs:
       - name: Build and validate Runtime KB
         run: python scripts/build_runtime.py
 
-      - name: Upload Runtime KB
+      - name: Upload versioned Runtime artifact
         uses: actions/upload-artifact@v4
         with:
           name: HOS_KB_Runtime-${{ github.sha }}
           path: HOS_KB_Runtime.md
           if-no-files-found: error
           retention-days: 90
+
+      - name: Publish permanent Runtime file
+        run: |
+          cp HOS_KB_Runtime.md /tmp/HOS_KB_Runtime.md
+          git fetch origin runtime
+          git switch runtime
+          cp /tmp/HOS_KB_Runtime.md HOS_KB_Runtime.md
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add HOS_KB_Runtime.md
+          if git diff --cached --quiet; then
+            echo "Runtime KB is already current."
+            exit 0
+          fi
+          git commit -m "Update HOS Runtime KB from ${GITHUB_SHA}"
+          git push origin runtime
