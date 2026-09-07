@@ -1,0 +1,30 @@
+{
+  "note": "Temporary experiment infrastructure; not an HOS content entity.",
+  "objects": [
+    {
+      "id": "Экспресс-тест уровня развития v0.1",
+      "source_path": "03 — Диагностика/Экспресс-тест уровня развития v0.1.md",
+      "retrieval_mode": "whole_document"
+    },
+    {
+      "id": "hos.level-architecture",
+      "source_path": "01 — Канон/Архитектура уровней развития.md",
+      "retrieval_mode": "fragment"
+    },
+    {
+      "id": "hos.metaskills",
+      "source_path": "01 — Канон/Метанавыки.md",
+      "retrieval_mode": "fragment"
+    },
+    {
+      "id": "hos.holography",
+      "source_path": "01 — Канон/Голографичность.md",
+      "retrieval_mode": "fragment"
+    },
+    {
+      "id": "hos.development-lines",
+      "source_path": "01 — Канон/Семь линий развития.md",
+      "retrieval_mode": "fragment"
+    }
+  ]
+}
