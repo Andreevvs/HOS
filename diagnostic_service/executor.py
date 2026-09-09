@@ -1,7 +1,7 @@
 """Stateful execution of a protocol retrieved from the Canonical KB.
 
-This module intentionally contains no diagnostic question or interpretation label.
-Those values are parsed from the exact whole-document result at session creation.
+The application contains no copy of the diagnostic questions. Interpretation rules here
+are only the minimal executable projection of the canonical v0.1 specification.
 """
 
 from __future__ import annotations
@@ -18,11 +18,11 @@ class ExactRetriever(Protocol):
 
 
 class ProtocolUnavailable(RuntimeError):
-    """The canonical executable protocol cannot be retrieved or verified."""
+    pass
 
 
 class ProtocolFormatError(RuntimeError):
-    """The retrieved document does not expose the required v0.1 structure."""
+    pass
 
 
 class SessionStatus(str, Enum):
@@ -38,7 +38,6 @@ class ParsedProtocol:
     intro: str
     questions: tuple[str, ...]
     dimensions: tuple[str, ...]
-    disclaimer: str
     feedback_prompts: tuple[str, ...]
 
 
@@ -62,10 +61,10 @@ def parse_protocol(text: str) -> ParsedProtocol:
     question_matches = list(re.finditer(r"^## Вопрос (\d+)\s*$", text, re.MULTILINE))
     interpretation = re.search(r"^## Интерпретация\s*$", text, re.MULTILINE)
     if not intro_match or len(question_matches) != 12 or not interpretation:
-        raise ProtocolFormatError("canonical protocol must contain Q1-Q12 and interpretation")
-    numbers = [int(match.group(1)) for match in question_matches]
-    if numbers != list(range(1, 13)):
+        raise ProtocolFormatError("canonical protocol must contain intro, Q1-Q12 and interpretation")
+    if [int(m.group(1)) for m in question_matches] != list(range(1, 13)):
         raise ProtocolFormatError("canonical questions are not ordered Q1-Q12")
+
     questions = []
     for index, match in enumerate(question_matches):
         end = question_matches[index + 1].start() if index < 11 else interpretation.start()
@@ -78,20 +77,24 @@ def parse_protocol(text: str) -> ParsedProtocol:
     )
     if set(labels) != set(range(1, 13)):
         raise ProtocolFormatError("canonical interpretation must describe Q1-Q12")
-    disclaimer_match = re.search(
-        r"явную оговорку, что (.+?);\s*$", interpretation_text, re.MULTILINE
+
+    feedback_match = re.search(
+        r"^\d+\. После интерпретации попросить человека:\s*\n((?:\s+- .+\n?){3})",
+        text,
+        re.MULTILINE,
     )
-    if not disclaimer_match:
-        raise ProtocolFormatError("canonical interpretation disclaimer is missing")
-    feedback_match = re.search(r"^9\. После интерпретации попросить человека:\s*\n"
-                               r"((?:\s+- .+\n?){3})", text, re.MULTILINE)
     if not feedback_match:
         raise ProtocolFormatError("canonical feedback instructions are missing")
-    feedback = tuple(item.strip().rstrip(";.") for item in
-                     re.findall(r"^\s+- (.+)$", feedback_match.group(1), re.MULTILINE))
-    return ParsedProtocol(intro_match.group(1).strip(), tuple(questions),
-                          tuple(labels[n] for n in range(1, 13)),
-                          disclaimer_match.group(1).strip(), feedback)
+    feedback = tuple(
+        item.strip().rstrip(";.")
+        for item in re.findall(r"^\s+- (.+)$", feedback_match.group(1), re.MULTILINE)
+    )
+    return ParsedProtocol(
+        intro_match.group(1).strip(),
+        tuple(questions),
+        tuple(labels[n] for n in range(1, 13)),
+        feedback,
+    )
 
 
 class ProtocolExecutor:
@@ -111,15 +114,18 @@ class ProtocolExecutor:
             if any(not result.get(key) for key in required):
                 raise ProtocolUnavailable("exact result has incomplete provenance")
             protocol = parse_protocol(result["text"])
-            session = DiagnosticSession(str(uuid.uuid4()), self.protocol_id,
-                                        result["source_path"], result["source_sha"],
-                                        result["text"], protocol)
+            session = DiagnosticSession(
+                str(uuid.uuid4()), self.protocol_id, result["source_path"], result["source_sha"],
+                result["text"], protocol
+            )
             self.sessions[session.session_id] = session
             session.status = SessionStatus.IN_PROGRESS
             return session, protocol.intro + "\n\n" + protocol.questions[0]
         except Exception as exc:
-            session = DiagnosticSession(str(uuid.uuid4()), self.protocol_id, "", "", "",
-                                        None, status=SessionStatus.ERROR, error=str(exc))
+            session = DiagnosticSession(
+                str(uuid.uuid4()), self.protocol_id, "", "", "", None,
+                status=SessionStatus.ERROR, error=str(exc)
+            )
             self.sessions[session.session_id] = session
             return session, "Диагностика не запущена: канонический протокол недоступен или не прошёл проверку."
 
@@ -138,9 +144,11 @@ class ProtocolExecutor:
 
         value = self._number(message)
         if value is None:
-            return ("Нужен ответ одним числом от 0 до 10; вопрос нельзя пропустить, "
-                    "шкалу изменить или интерпретировать ответ до завершения.\n\n"
-                    + session.protocol.questions[session.current_question])
+            return (
+                "Нужен ответ одним числом от 0 до 10; вопрос нельзя пропустить, "
+                "шкалу изменить или интерпретировать ответ до завершения.\n\n"
+                + session.protocol.questions[session.current_question]
+            )
         session.answers.append(value)
         session.current_question += 1
         if session.current_question < 12:
@@ -155,22 +163,105 @@ class ProtocolExecutor:
         return int(message.strip())
 
     @staticmethod
-    def _interpret(session: DiagnosticSession) -> str:
-        ranked_high = sorted(range(12), key=lambda i: (-session.answers[i], i))[:3]
-        ranked_low = sorted(range(12), key=lambda i: (session.answers[i], i))[:3]
-        describe = lambda i: f"Q{i + 1}={session.answers[i]} — {session.protocol.dimensions[i]}"
-        vector = ", ".join(f"Q{i + 1}={value}" for i, value in enumerate(session.answers))
-        gap = session.answers[ranked_high[0]] - session.answers[ranked_low[0]]
-        configuration = (
-            f"Контраст между самым высоким и низким показателями составляет {gap} пунктов; "
-            f"сочетание «{session.protocol.dimensions[ranked_high[0]]}» и "
-            f"«{session.protocol.dimensions[ranked_low[0]]}» описывает неоднородный "
-            "контекстный профиль, а не единую шкалу."
+    def _zone(value: int) -> str:
+        if value <= 3:
+            return "low"
+        if value <= 6:
+            return "mid"
+        return "high"
+
+    @classmethod
+    def _level_hypothesis(cls, a: list[int]) -> tuple[str, str, str, str]:
+        """Return level label, IUT wording, confidence and rationale.
+
+        Thresholds 0-3/4-6/7-10 come from the canonical technical hypothesis.
+        Confidence resolution is an application heuristic, not a HOS law.
+        """
+        q3, q5, q6, q7, q9 = a[2], a[4], a[5], a[6], a[8]
+        z5, z6, z7, z9 = map(cls._zone, (q5, q6, q7, q9))
+
+        if z6 == "low" and z7 == "low":
+            return (
+                "L2 или ниже",
+                "при гипотезе L2 — 15–25; более низкие уровни этот тест надёжно не различает",
+                "средняя",
+                "Q6 и Q7 находятся в низкой зоне: самостоятельная организация и реализация намерений выражены слабо.",
+            )
+
+        if "low" in (z6, z7):
+            return (
+                "пограничная зона L2→L3",
+                "около границы 25; точнее этот тест не позиционирует",
+                "низкая",
+                "Q6 и Q7 расходятся: признаки самостоятельности и результативности противоречивы.",
+            )
+
+        authorship = z5 == "high" and z7 == "high"
+        support = cls._zone(q3) == "high" or z9 == "high"
+        if not authorship:
+            confidence = "высокая" if z5 == "low" and z6 == "high" and z7 == "high" else "средняя"
+            return (
+                "L3 — Необходимость",
+                "25–40",
+                confidence,
+                "Q6/Q7 указывают на самостоятельность и реализацию, но картина Авторства по Q5/Q7 и поддержке Q3/Q9 недостаточно выражена.",
+            )
+
+        if z6 == "low":
+            return (
+                "пограничная зона L3→L4",
+                "около границы 40; точнее этот тест не позиционирует",
+                "низкая",
+                "Q5/Q7 дают признаки Авторства, но низкий Q6 нарушает последовательную картину устойчивой реализации.",
+            )
+
+        possible_l5 = z6 == "high" and z9 == "high" and cls._zone(q3) == "high"
+        if possible_l5:
+            return (
+                "L4 — Увлекающаяся личность, с признаками возможного L5",
+                "40–60; L5 (60–80) этим тестом не подтверждается",
+                "средняя",
+                "Выражены Авторство, результативность и направление; это совместимо с признаками возможного L5, но Кр5 тест не проверяет.",
+            )
+
+        confidence = "средняя" if support else "низкая"
+        return (
+            "L4 — Увлекающаяся личность",
+            "40–60",
+            confidence,
+            "Q5/Q7 дают выраженные признаки Авторства; Q6/Q9 уточняют качество реализации и направления, но не являются основанием автоматически повышать уровень.",
         )
-        return (f"Полный вектор: {vector}\n\nСильные показатели:\n- "
-                + "\n- ".join(describe(i) for i in ranked_high)
-                + "\n\nНизкие или контрастные показатели:\n- "
-                + "\n- ".join(describe(i) for i in ranked_low)
-                + f"\n\nКонфигурация: {configuration}\n\nОговорка: "
-                + session.protocol.disclaimer
-                + "\n\n" + session.protocol.feedback_prompts[0])
+
+    @classmethod
+    def _interpret(cls, session: DiagnosticSession) -> str:
+        answers = session.answers
+        level, iut, confidence, why = cls._level_hypothesis(answers)
+        ranked_high = sorted(range(12), key=lambda i: (-answers[i], i))[:3]
+        ranked_low = sorted(range(12), key=lambda i: (answers[i], i))[:3]
+        describe = lambda i: f"Q{i + 1}={answers[i]} — {session.protocol.dimensions[i]}"
+        vector = ", ".join(f"Q{i + 1}={value}" for i, value in enumerate(answers))
+
+        q1, q4, q8, q10 = answers[0], answers[3], answers[7], answers[9]
+        q2, q11, q12 = answers[1], answers[10], answers[11]
+        current = (
+            f"Контекст текущей жизни: удовлетворённость Q1={q1}, отношения Q4={q4}, "
+            f"энергия Q8={q8}, тональность жизни Q10={q10}. "
+            f"Динамика и траектория: Q2={q2}, Q11={q11}, Q12={q12}."
+        )
+
+        return (
+            "Предварительная оценка развития HOS\n\n"
+            f"Полный вектор: {vector}\n\n"
+            f"Наиболее вероятная зона: {level}.\n"
+            f"Ориентировочный диапазон ИУТ: {iut}.\n"
+            f"Уверенность: {confidence}.\n\n"
+            f"Почему: {why}\n\n"
+            "Сильные показатели:\n- " + "\n- ".join(describe(i) for i in ranked_high)
+            + "\n\nНизкие или контрастные показатели:\n- "
+            + "\n- ".join(describe(i) for i in ranked_low)
+            + f"\n\nТекущая жизнь: {current}\n\n"
+            "Ограничение: это экспресс-гипотеза по самооценке текущей жизни. "
+            "Она не подтверждает прохождение кризисов HOS; для подтверждения уровня и "
+            "более точной оценки ИУТ используется полная диагностика HOS. L6 этим тестом не диагностируется.\n\n"
+            + session.protocol.feedback_prompts[0]
+        )
