@@ -29,7 +29,7 @@ form{display:flex;gap:.5rem;margin-top:1rem}input{flex:1;padding:.8rem}button{pa
 <form><input id=answer autocomplete=off placeholder='Ваш ответ'><button>Начать тест</button></form>
 <script>let sid=null;const form=document.querySelector('form'),chat=document.querySelector('#chat'),input=document.querySelector('#answer'),button=document.querySelector('button');
 form.onsubmit=async e=>{e.preventDefault();let url=sid?'/sessions/'+sid+'/messages':'/sessions';let body=sid?{message:input.value}:{};
-let r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}),d=await r.json();sid=d.session_id;chat.textContent+='\n\nHOS:\n'+d.message;input.value='';button.textContent='Ответить';};</script></html>"""
+let r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}),d=await r.json();sid=d.session_id;chat.textContent=d.message;input.value='';button.textContent='Ответить';};</script></html>"""
 
 
 def handler_for(executor: ProtocolExecutor):
