@@ -3,7 +3,6 @@ import shutil
 import tempfile
 import threading
 import unittest
-import urllib.error
 import urllib.request
 from pathlib import Path
 
@@ -23,13 +22,20 @@ def make_executor(root=ROOT):
     return ProtocolExecutor(service, PROTOCOL_ID), service
 
 
+def finish(executor, session, values):
+    result = ""
+    for value in values:
+        result = executor.respond(session.session_id, str(value))
+    return result
+
+
 class ExpressDiagnosticE2E(unittest.TestCase):
     def test_e1_e2_exact_retrieval_and_start(self):
         executor, service = make_executor()
         exact = service.exact(PROTOCOL_ID)
-        self.assertEqual(exact["text"], (ROOT / SOURCE).read_text(encoding="utf-8"))  # E1
+        self.assertEqual(exact["text"], (ROOT / SOURCE).read_text(encoding="utf-8"))
         session, message = executor.start()
-        self.assertEqual(session.status, SessionStatus.IN_PROGRESS)  # E2
+        self.assertEqual(session.status, SessionStatus.IN_PROGRESS)
         self.assertIn(session.protocol.questions[0], message)
 
     def test_e3_e4_sequence_and_answer_storage(self):
@@ -38,10 +44,10 @@ class ExpressDiagnosticE2E(unittest.TestCase):
         for number in range(12):
             response = executor.respond(session.session_id, str(number % 11))
             if number < 11:
-                self.assertIn(f"## Вопрос {number + 2}", response)  # E3
-        self.assertEqual(session.answers, list(range(11)) + [0])  # E4
+                self.assertIn(f"## Вопрос {number + 2}", response)
+        self.assertEqual(session.answers, list(range(11)) + [0])
 
-    def test_e5_intermediate_interpretation_is_refused(self):
+    def test_intermediate_interpretation_is_refused(self):
         executor, _ = make_executor(); session, _ = executor.start()
         for value in (5, 6, 7): executor.respond(session.session_id, str(value))
         before = (session.current_question, list(session.answers))
@@ -50,38 +56,75 @@ class ExpressDiagnosticE2E(unittest.TestCase):
         self.assertIn("нельзя", reply)
         self.assertIn("## Вопрос 4", reply)
 
-    def test_e6_invalid_answer_does_not_move_state(self):
+    def test_invalid_answer_does_not_move_state(self):
         executor, _ = make_executor(); session, _ = executor.start()
         for invalid in ("11", "-1", "не знаю", "15"):
             self.assertIn("от 0 до 10", executor.respond(session.session_id, invalid))
             self.assertEqual(session.current_question, 0)
             self.assertEqual(session.answers, [])
 
-    def test_e7_skip_is_forbidden(self):
+    def test_skip_and_scale_change_are_forbidden(self):
         executor, _ = make_executor(); session, _ = executor.start()
-        reply = executor.respond(session.session_id, "Пропустим Q4")
-        self.assertIn("нельзя пропустить", reply)
+        self.assertIn("нельзя пропустить", executor.respond(session.session_id, "Пропустим"))
+        self.assertIn("шкалу изменить", executor.respond(session.session_id, "Давайте шкалу 1–5"))
         self.assertEqual(session.current_question, 0)
 
-    def test_e8_scale_change_is_forbidden(self):
+    def test_result_contains_approved_structure(self):
         executor, _ = make_executor(); session, _ = executor.start()
-        reply = executor.respond(session.session_id, "Давайте шкалу 1–5")
-        self.assertIn("шкалу изменить", reply)
-        self.assertEqual(session.current_question, 0)
-
-    def test_e9_e10_e11_result_constraints_and_feedback(self):
-        executor, _ = make_executor(); session, _ = executor.start()
-        result = ""
-        for value in range(12): result = executor.respond(session.session_id, str(value % 11))
-        self.assertIn("Q12=0", result)  # E9 full vector
-        for heading in ("Сильные показатели", "Низкие или контрастные показатели", "Конфигурация", "Оговорка"):
-            self.assertIn(heading, result)  # E10
-        self.assertNotIn("среднее", result.casefold())
-        self.assertNotIn("уровень L:", result)
-        self.assertIn("оценить по шкале 0–10", result)  # E11
+        result = finish(executor, session, [5] * 12)
+        for text in (
+            "Предварительная оценка развития HOS",
+            "Наиболее вероятная зона",
+            "Ориентировочный диапазон ИУТ",
+            "Уверенность",
+            "Почему",
+            "Сильные показатели",
+            "Низкие или контрастные показатели",
+            "Текущая жизнь",
+            "Ограничение",
+            "полная диагностика HOS",
+        ):
+            self.assertIn(text, result)
+        self.assertNotIn("ИУТ =", result)
+        self.assertIn("оценить по шкале 0–10", result)
         self.assertEqual(session.status, SessionStatus.AWAITING_FEEDBACK)
 
-    def test_e12_e13_revision_propagation_and_session_pin(self):
+    def test_profile_successful_l3_not_promoted_by_good_context(self):
+        executor, _ = make_executor(); session, _ = executor.start()
+        # Good life/context, strong realization and control, but low interest signal.
+        result = finish(executor, session, [10, 10, 8, 10, 2, 9, 9, 10, 6, 10, 10, 10])
+        self.assertIn("L3 — Необходимость", result)
+        self.assertIn("25–40", result)
+        self.assertNotIn("возможного L5", result)
+
+    def test_profile_bright_chaotic_l4_is_not_demoted(self):
+        executor, _ = make_executor(); session, _ = executor.start()
+        result = finish(executor, session, [6, 7, 5, 7, 9, 5, 9, 6, 5, 7, 6, 6])
+        self.assertIn("L4 — Увлекающаяся личность", result)
+        self.assertIn("40–60", result)
+
+    def test_profile_l5_hard_period_stays_possible_not_confirmed(self):
+        executor, _ = make_executor(); session, _ = executor.start()
+        result = finish(executor, session, [2, 6, 9, 5, 9, 9, 9, 2, 9, 2, 5, 4])
+        self.assertIn("признаками возможного L5", result)
+        self.assertIn("L5 (60–80) этим тестом не подтверждается", result)
+        self.assertNotIn("Наиболее вероятная зона: L5", result)
+
+    def test_all_tens_do_not_produce_l6_or_confirmed_l5(self):
+        executor, _ = make_executor(); session, _ = executor.start()
+        result = finish(executor, session, [10] * 12)
+        self.assertIn("L4 — Увлекающаяся личность, с признаками возможного L5", result)
+        self.assertIn("L6 этим тестом не диагностируется", result)
+        self.assertNotIn("Наиболее вероятная зона: L5", result)
+        self.assertNotIn("Наиболее вероятная зона: L6", result)
+
+    def test_low_q6_q7_gates_higher_level(self):
+        executor, _ = make_executor(); session, _ = executor.start()
+        result = finish(executor, session, [9, 9, 9, 9, 10, 2, 2, 9, 10, 9, 9, 9])
+        self.assertIn("L2 или ниже", result)
+        self.assertNotIn("L4 —", result)
+
+    def test_revision_propagation_and_session_pin(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             (root / SOURCE.parent).mkdir(parents=True)
@@ -91,26 +134,25 @@ class ExpressDiagnosticE2E(unittest.TestCase):
             (root / "knowledge_service/registry.json").write_text(
                 json.dumps({"objects": [registry["objects"][0]]}, ensure_ascii=False), encoding="utf-8")
             executor, service = make_executor(root)
-            old, old_message = executor.start()
+            old, _ = executor.start()
             old_sha, old_question = old.source_sha, old.protocol.questions[0]
             path = root / SOURCE
             path.write_text(path.read_text(encoding="utf-8").replace("## Вопрос 1", "## Вопрос 1\n\nМАРКЕР НОВОЙ РЕДАКЦИИ", 1), encoding="utf-8")
             service.build()
             new, new_message = executor.start()
-            self.assertNotEqual(new.source_sha, old_sha)  # E12
+            self.assertNotEqual(new.source_sha, old_sha)
             self.assertIn("МАРКЕР НОВОЙ РЕДАКЦИИ", new_message)
-            self.assertEqual(old.source_sha, old_sha)  # E13
+            self.assertEqual(old.source_sha, old_sha)
             self.assertEqual(old.protocol.questions[0], old_question)
             self.assertNotIn("МАРКЕР", executor.respond(old.session_id, "5"))
 
-    def test_e14_missing_exact_protocol_is_controlled_failure(self):
-        executor, _ = make_executor()
-        executor.protocol_id = "missing"
+    def test_missing_exact_protocol_is_controlled_failure(self):
+        executor, _ = make_executor(); executor.protocol_id = "missing"
         session, reply = executor.start()
         self.assertEqual(session.status, SessionStatus.ERROR)
         self.assertIn("не запущена", reply)
 
-    def test_e15_application_has_no_hardcoded_question_copy(self):
+    def test_application_has_no_hardcoded_question_copy(self):
         canonical = (ROOT / SOURCE).read_text(encoding="utf-8")
         distinctive = "Если представить, что **следующие 3 года ваша жизнь"
         self.assertIn(distinctive, canonical)
@@ -127,7 +169,7 @@ class ExpressDiagnosticE2E(unittest.TestCase):
 
     def test_feedback_completes_session(self):
         executor, _ = make_executor(); session, _ = executor.start()
-        for _ in range(12): executor.respond(session.session_id, "5")
+        finish(executor, session, [5] * 12)
         executor.respond(session.session_id, "8")
         executor.respond(session.session_id, "Баланс")
         reply = executor.respond(session.session_id, "Не согласен с контрастом")
