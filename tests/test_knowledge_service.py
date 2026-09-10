@@ -22,7 +22,10 @@ class ExperimentEvals(unittest.TestCase):
 
     def test_e1_exact_returns_complete_canonical_document(self):
         result = self.service.exact(EXACT_ID)
-        expected = (ROOT / result["source_path"]).read_text(encoding="utf-8")
+        # Compare decoded source bytes, not Path.read_text(): on Windows
+        # universal-newline translation turns CRLF into LF while exact() preserves
+        # the source bytes represented as UTF-8 text.
+        expected = (ROOT / result["source_path"]).read_bytes().decode("utf-8")
         self.assertEqual("ok", result["status"])
         self.assertEqual(expected, result["text"])
 
