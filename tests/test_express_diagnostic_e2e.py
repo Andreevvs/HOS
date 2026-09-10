@@ -33,7 +33,8 @@ class ExpressDiagnosticE2E(unittest.TestCase):
     def test_e1_e2_exact_retrieval_and_start(self):
         executor, service = make_executor()
         exact = service.exact(PROTOCOL_ID)
-        self.assertEqual(exact["text"], (ROOT / SOURCE).read_text(encoding="utf-8"))
+        # exact() preserves source newlines; Path.read_text() normalizes CRLF on Windows.
+        self.assertEqual(exact["text"], (ROOT / SOURCE).read_bytes().decode("utf-8"))
         session, message = executor.start()
         self.assertEqual(session.status, SessionStatus.IN_PROGRESS)
         self.assertIn(session.protocol.questions[0], message)
