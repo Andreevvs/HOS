@@ -20,15 +20,25 @@ class ExpressDiagnosticE2E(unittest.TestCase):
         e=make_executor();s,_=e.start();r=finish(e,s,[2,6,9,5,9,9,9,2,9,2,5,4]);self.assertIn("L5 — Интегрированная личность",r)
     def test_low_q6_q7_gate_higher_levels(self):
         e=make_executor();s,_=e.start();r=finish(e,s,[9,9,9,9,10,2,2,9,10,9,9,9]);self.assertIn("L2 или ниже",r);self.assertNotIn("L4 —",r);self.assertNotIn("L5 —",r)
-    def test_result_is_stored_through_feedback(self):
-        e=make_executor();s,_=e.start();r=finish(e,s,[5]*12);self.assertEqual(s.result_text,r);e.respond(s.session_id,"8");self.assertEqual(s.result_text,r);self.assertEqual(s.status,SessionStatus.AWAITING_FEEDBACK)
-    def test_web_keeps_result_separate_from_feedback_prompt(self):
+    def test_result_is_stored_and_contains_no_feedback_prompt(self):
+        e=make_executor();s,_=e.start();r=finish(e,s,[5]*12)
+        self.assertEqual(s.result_text,r);self.assertNotIn(s.protocol.feedback_prompts[0],r)
+        for i,answer in enumerate(("8","Точно","Ничего")):
+            message=e.respond(s.session_id,answer);self.assertEqual(s.result_text,r)
+            if i<2:self.assertEqual(message,s.protocol.feedback_prompts[i+1])
+        self.assertEqual(s.status,SessionStatus.COMPLETED)
+    def test_web_keeps_result_separate_across_all_feedback_turns(self):
         e=make_executor();server=ThreadingHTTPServer(("127.0.0.1",0),handler_for(e));thread=threading.Thread(target=server.serve_forever,daemon=True);thread.start()
+        def post(url,body):
+            req=urllib.request.Request(url,data=json.dumps(body).encode(),headers={"Content-Type":"application/json"},method="POST");return json.loads(urllib.request.urlopen(req).read())
         try:
-            base=f"http://127.0.0.1:{server.server_port}";req=urllib.request.Request(base+"/sessions",data=b"{}",headers={"Content-Type":"application/json"},method="POST");started=json.loads(urllib.request.urlopen(req).read());sid=started["session_id"]
-            for _ in range(12):
-                payload=json.dumps({"message":"5"}).encode();req=urllib.request.Request(base+f"/sessions/{sid}/messages",data=payload,headers={"Content-Type":"application/json"},method="POST");last=json.loads(urllib.request.urlopen(req).read())
-            self.assertIn("Предварительная оценка развития HOS",last["result"]);self.assertNotEqual(last["message"],last["result"]);saved=last["result"]
-            payload=json.dumps({"message":"8"}).encode();req=urllib.request.Request(base+f"/sessions/{sid}/messages",data=payload,headers={"Content-Type":"application/json"},method="POST");feedback=json.loads(urllib.request.urlopen(req).read());self.assertEqual(saved,feedback["result"]);self.assertNotEqual(saved,feedback["message"])
+            base=f"http://127.0.0.1:{server.server_port}";started=post(base+"/sessions",{});sid=started["session_id"]
+            for _ in range(12):last=post(base+f"/sessions/{sid}/messages",{"message":"5"})
+            saved=last["result"];session=e.sessions[sid]
+            self.assertIn("Предварительная оценка развития HOS",saved);self.assertNotIn(session.protocol.feedback_prompts[0],saved);self.assertEqual(last["message"],session.protocol.feedback_prompts[0])
+            for i,answer in enumerate(("8","Точно","Ничего")):
+                response=post(base+f"/sessions/{sid}/messages",{"message":answer});self.assertEqual(response["result"],saved)
+                if i<2:self.assertEqual(response["message"],session.protocol.feedback_prompts[i+1])
+            self.assertEqual(session.status,SessionStatus.COMPLETED)
         finally:server.shutdown();server.server_close();thread.join()
 if __name__=="__main__":unittest.main()
