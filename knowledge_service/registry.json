@@ -7,6 +7,11 @@
       "retrieval_mode": "whole_document"
     },
     {
+      "id": "ИУТ — измерение",
+      "source_path": "03 — Диагностика/ИУТ — измерение.md",
+      "retrieval_mode": "whole_document"
+    },
+    {
       "id": "hos.level-architecture",
       "source_path": "01 — Канон/Архитектура уровней развития.md",
       "retrieval_mode": "fragment"
