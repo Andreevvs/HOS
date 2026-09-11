@@ -1,0 +1,22 @@
+name: Express diagnostic tests
+
+on:
+  pull_request:
+    paths:
+      - 'diagnostic_service/**'
+      - 'knowledge_service/**'
+      - 'tests/test_express_diagnostic_e2e.py'
+      - '03 — Диагностика/Экспресс-тест уровня развития v0.1.md'
+      - '.github/workflows/express-diagnostic-tests.yml'
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run express diagnostic regression tests
+        run: python -m unittest -v tests.test_express_diagnostic_e2e
