@@ -23,7 +23,7 @@ class ExactRetriever(Protocol):
 @dataclass(frozen=True)
 class Evidence:
     crisis: str
-    stance: str  # supporting | contradictory | uncertain
+    stance: str
     fact: str
     answer_index: int
 
@@ -46,6 +46,7 @@ class FullSession:
     source_sha: str
     version: str
     canonical_text: str
+    pending_question: str
     history: list[tuple[str, str]] = field(default_factory=list)
     crisis_states: dict[str, str] = field(default_factory=lambda: {c: "unexamined" for c in CRISES})
     evidence: list[Evidence] = field(default_factory=list)
@@ -67,24 +68,32 @@ class FullIUTInterview:
         first = re.search(r"^1\.\s+(.+)$", obj["text"], re.MULTILINE)
         if not first:
             raise FullIUTUnavailable("canonical entrance screening missing")
+        question = first.group(1).strip()
         session = FullSession(str(uuid.uuid4()), obj["source_path"], obj["source_sha"],
-                              version.group(1).strip(), obj["text"])
+                              version.group(1).strip(), obj["text"], question)
         self.sessions[session.session_id] = session
-        return session, first.group(1).strip()
+        return session, question
 
-    def answer(self, session_id: str, question: str, answer: str) -> dict:
+    def answer(self, session_id: str, answer: str) -> dict:
         s = self.sessions[session_id]
-        if s.completed: return {"status": "completed", "result": self.result(s)}
-        s.history.append((question.strip(), answer.strip()))
+        if s.completed:
+            return {"status": "completed", "result": self.result(s)}
+        answer = answer.strip()
+        if not answer:
+            return {"status": "in_progress", "question": s.pending_question,
+                    "error": "Ответ не должен быть пустым."}
+        s.history.append((s.pending_question, answer))
         decision = self.interpreter.interpret(canonical_text=s.canonical_text,
             history=tuple(s.history), crisis_states=dict(s.crisis_states))
         self._apply(s, decision)
         if decision.stop:
             s.completed = True
+            s.pending_question = ""
             return {"status": "completed", "result": self.result(s)}
         if not decision.next_question:
             raise InvalidInterpretation("interpreter must provide next_question unless stopping")
-        return {"status": "in_progress", "question": decision.next_question}
+        s.pending_question = decision.next_question
+        return {"status": "in_progress", "question": s.pending_question}
 
     def _apply(self, s: FullSession, d: Interpretation) -> None:
         for crisis, state in d.crisis_updates.items():
@@ -95,8 +104,10 @@ class FullIUTInterview:
                 raise InvalidInterpretation("sequence law violation")
             s.crisis_states[crisis] = state
         for e in d.evidence:
-            if e.crisis not in CRISES or e.stance not in {"supporting", "contradictory", "uncertain"}:
+            if e.crisis not in CRISES or e.stance not in {"supporting", "contradictory", "uncertain"} or not e.fact:
                 raise InvalidInterpretation("invalid evidence")
+            if e.answer_index < 0 or e.answer_index >= len(s.history):
+                raise InvalidInterpretation("evidence points outside interview history")
             s.evidence.append(e)
         s.main_question = d.main_question or s.main_question
 
