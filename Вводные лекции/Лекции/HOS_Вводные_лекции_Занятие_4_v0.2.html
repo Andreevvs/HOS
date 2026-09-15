@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HOS — Занятие 4. Что на самом деле показывает ИУТ?</title>
+<style>
+:root{--ink:#183653;--deep:#153e75;--muted:#65778e;--bg:#f5f8fc;--line:#dce6f0;--accent:#347fd7;--blue:#edf6ff;--green:#eef9f1;--gold:#fff8df;--violet:#f4f0ff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.58 Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:#fffffff2;backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.top,main{max-width:840px;margin:auto}.top{padding:12px 18px;display:flex;gap:12px;align-items:center}.logo{background:var(--accent);color:#fff;font-weight:900;padding:7px 12px;border-radius:12px}.progress{margin-left:auto;color:var(--muted);font-size:14px}
+main{padding:30px 18px 70px}.card{background:#fff;border:1px solid var(--line);border-radius:22px;padding:22px;margin:17px 0;box-shadow:0 10px 28px #244e7510}.hero{background:linear-gradient(135deg,#edf7ff,#f6efff);padding:28px}
+h1{font-size:clamp(34px,6vw,50px);line-height:1.08;color:var(--deep);margin:6px 0 12px}h2{color:#17477f;font-size:28px;margin:38px 0 13px}.lead{font-size:20px;color:#405a78}.kicker{font-weight:850;color:var(--accent)}
+.blue{background:var(--blue)}.green{background:var(--green)}.gold{background:var(--gold)}.violet{background:var(--violet);border-left:5px solid #7968d5}.note{font-size:14px;color:var(--muted)}.big{font-size:23px;font-weight:850;color:var(--deep)}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:14px}.person{padding:20px;border:1px solid var(--line);border-radius:19px;background:#fff}.score{font-size:30px;font-weight:900;color:var(--accent)}
+.axis{margin:18px 0}.track{height:14px;border-radius:99px;background:linear-gradient(90deg,#e4edf7,#9ec8ef,#3b7fce);position:relative}.ticks{display:flex;justify-content:space-between;color:var(--muted);font-size:13px;margin-top:7px}
+.flow{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}.step{padding:14px 17px;border-radius:16px;background:#fff;border:1px solid var(--line);font-weight:850;text-align:center}.arr{font-size:24px;color:var(--accent)}
+.question{font-size:20px;font-weight:800;color:var(--deep)}.choices{display:grid;gap:9px}.choice{border:1px solid #cbdbea;background:#fff;color:var(--ink);border-radius:15px;padding:12px 15px;text-align:left;font-weight:700;cursor:pointer}.choice.on{background:var(--accent);color:#fff;border-color:var(--accent)}.result{display:none;margin-top:14px;padding:14px;background:#fff;border:1px solid var(--line);border-radius:14px}
+.next{display:block;text-align:center;text-decoration:none;background:var(--deep);color:#fff;padding:16px;border-radius:16px;font-weight:850;margin-top:28px}
+@media(max-width:650px){.compare{grid-template-columns:1fr}.progress{font-size:12px}}
+</style></head><body>
+<header><div class="top"><div class="logo">HOS</div><div>Вводный курс</div><div class="progress">Занятие 4</div></div></header>
+<main>
+<section class="card hero"><div class="kicker">ЛЕКЦИЯ 4</div><h1>Что на самом деле показывает ИУТ?</h1>
+<p class="lead">Мы уже отделили текущее состояние от более устойчивой характеристики жизни. Теперь сделаем следующий шаг: в HOS ИУТ — это не просто «насколько хорошо в целом».</p></section>
+
+<h2>Вернёмся к двум людям</h2>
+<div class="compare">
+<div class="person"><div class="score">СУТ +7</div><p>Прекрасный вечер. Но важные жизненные задачи постоянно решаются только под давлением обстоятельств или с опорой на внешнее управление.</p></div>
+<div class="person"><div class="score">СУТ +7</div><p>Тоже прекрасный вечер. При этом человек самостоятельно строит планы, удерживает несколько областей жизни и справляется с возникающей сложностью.</p></div>
+</div>
+<div class="card gold"><p><strong>СУТ может быть одинаковым, а уровень развития — разным.</strong> Значит, для описания развития нужен другой показатель.</p></div>
+
+<h2>Именно эту роль в HOS играет ИУТ</h2>
+<div class="card blue"><p class="big">ИУТ — интегральный показатель достигнутого уровня развития личности.</p>
+<p>Он описывает относительно устойчивый уровень организации человека и его жизни, а не качество одного текущего переживания.</p>
+<div class="axis"><div class="track"></div><div class="ticks"><span>0</span><span>ИУТ</span><span>100</span></div></div>
+<p class="note">Шкала ИУТ в HOS — 0…100. В этой лекции мы ещё не пытаемся самостоятельно определить своё число: сначала нужно понять, что именно измеряется.</p></div>
+
+<h2>Тогда что такое развитие?</h2>
+<div class="card green"><div class="flow"><div class="step">Текущий ИУТ</div><div class="arr">→</div><div class="step">Развитие личности</div><div class="arr">→</div><div class="step">Более высокий ИУТ</div></div>
+<p class="big" style="text-align:center">Развитие личности в HOS — процесс повышения ИУТ.</p>
+<p>Это не означает, что ИУТ должен постоянно расти день за днём. Он инертен: значимое развитие предполагает устойчивые изменения в самом способе организации жизни.</p></div>
+
+<h2>Что не является повышением ИУТ само по себе?</h2>
+<div class="card"><p><strong>Хорошее настроение.</strong> Оно повышает СУТ, но ещё ничего не доказывает об изменении развития.</p>
+<p><strong>Успешный день или отпуск.</strong> Они могут дать высокий СУТ, не изменив способ организации жизни.</p>
+<p><strong>Новая информация.</strong> Прочитанная книга или курс могут стать ресурсом развития, но знание ещё должно изменить реальные возможности человека.</p>
+<p><strong>Один большой успех.</strong> Он может быть признаком развития — а может быть разовым результатом обстоятельств.</p></div>
+
+<h2>ИУТ — не сумма СУТ</h2>
+<div class="card gold"><p>Можно было бы предположить: если чаще испытывать приятные эмоции, ИУТ автоматически вырастет. <strong>В HOS такого закона нет.</strong></p>
+<p>СУТ и ИУТ относятся к разным характеристикам человека. СУТ описывает текущее переживание; ИУТ — достигнутый уровень развития.</p>
+<p>Возможная статистическая связь между долговременным распределением СУТ и ИУТ остаётся отдельной проверяемой гипотезой.</p></div>
+
+<h2>Проверьте различие</h2>
+<div class="card blue"><p class="question">Что из этого наиболее убедительно говорит о развитии?</p>
+<div class="choices" id="choices">
+<button class="choice">A. Человек провёл неделю в прекрасном настроении.</button>
+<button class="choice">B. Человек устойчиво научился самостоятельно справляться с классом жизненных задач, который раньше был ему недоступен.</button>
+<button class="choice">C. Человек один раз успешно решил очень сложную задачу.</button>
+</div><div class="result" id="result"></div></div>
+
+<h2>Зачем тогда вообще повышать ИУТ?</h2>
+<div class="card violet"><p>Если цель HOS связана со счастьем, возникает естественный вопрос: <strong>зачем развиваться, если можно просто стремиться к высокому СУТ?</strong></p>
+<p>Это уже следующий шаг. Рабочая идея HOS состоит не в том, что высокий ИУТ автоматически делает человека счастливым, а в том, что развитие <strong>расширяет его возможности создавать жизнь, в которой он способен быть счастливым.</strong></p>
+<p>Как именно ИУТ связан с возможностью устойчиво поддерживать высокий СУТ — тема следующего занятия.</p></div>
+
+<h2>Статус этой идеи</h2>
+<div class="card"><p><strong>Определение HOS:</strong> ИУТ — интегральный показатель достигнутого уровня развития личности.</p>
+<p><strong>Определение HOS:</strong> развитие личности — процесс повышения ИУТ.</p>
+<p><strong>Важно:</strong> эти определения задают архитектуру модели HOS. Они сами по себе ещё не доказывают, что шкала ИУТ валидно измеряет развитие. Способ измерения и эмпирическая проверка — отдельные задачи.</p></div>
+
+<h2>Главное за 30 секунд</h2>
+<div class="card green"><p><strong>СУТ — качество текущего переживания.</strong></p>
+<p><strong>ИУТ — интегральный показатель достигнутого уровня развития личности.</strong></p>
+<p><strong>Развитие личности — процесс повышения ИУТ.</strong></p>
+<p>Поэтому высокий СУТ и высокий ИУТ — не одно и то же, а временное улучшение состояния ещё не означает развития.</p></div>
+
+<h2>Маленький эксперимент</h2>
+<div class="card gold"><p>Вспомните одно изменение в себе за последние несколько лет, которое вы считаете настоящим развитием.</p>
+<p>Спросите себя: <strong>что стало устойчиво возможно для меня теперь, чего раньше я не мог?</strong></p>
+<p>Пока не оценивайте ИУТ числом. Нам важнее научиться отличать изменение состояния от устойчивого изменения личности.</p></div>
+
+<a class="next" href="#" onclick="return false">Дальше: зачем повышать ИУТ? →</a>
+</main>
+<script>
+document.querySelectorAll('#choices .choice').forEach((b,i)=>b.addEventListener('click',()=>{
+ document.querySelectorAll('#choices .choice').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+ const r=document.getElementById('result');r.style.display='block';
+ r.innerHTML=i===1?'<strong>Да.</strong> В рамках HOS вариант B лучше всего указывает на устойчивое изменение возможностей личности, а значит — на развитие.':'<strong>Недостаточно.</strong> Это может быть важным переживанием или достижением, но одного эпизода ещё мало, чтобы утверждать устойчивое повышение ИУТ.';
+}));
+</script></body></html>
