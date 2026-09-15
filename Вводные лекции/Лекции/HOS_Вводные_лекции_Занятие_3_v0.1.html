@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HOS — Занятие 3. Почему одного хорошего состояния недостаточно?</title>
+<style>
+:root{--ink:#183653;--deep:#153e75;--muted:#65778e;--bg:#f5f8fc;--line:#dce6f0;--accent:#347fd7;--blue:#edf6ff;--green:#eef9f1;--gold:#fff8df;--violet:#f4f0ff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.58 Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:#fffffff2;backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.top,main{max-width:840px;margin:auto}.top{padding:12px 18px;display:flex;gap:12px;align-items:center}.logo{background:var(--accent);color:#fff;font-weight:900;padding:7px 12px;border-radius:12px}.progress{margin-left:auto;color:var(--muted);font-size:14px}
+main{padding:30px 18px 70px}.card{background:#fff;border:1px solid var(--line);border-radius:22px;padding:22px;margin:17px 0;box-shadow:0 10px 28px #244e7510}.hero{background:linear-gradient(135deg,#edf7ff,#f6efff);padding:28px}
+h1{font-size:clamp(34px,6vw,50px);line-height:1.08;color:var(--deep);margin:6px 0 12px}h2{color:#17477f;font-size:28px;margin:38px 0 13px}.lead{font-size:20px;color:#405a78}.kicker{font-weight:850;color:var(--accent)}
+.blue{background:var(--blue)}.green{background:var(--green)}.gold{background:var(--gold)}.violet{background:var(--violet);border-left:5px solid #7968d5}.note{font-size:14px;color:var(--muted)}
+.day{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;align-items:end;margin-top:15px}.moment{text-align:center}.bar{border-radius:14px 14px 6px 6px;background:linear-gradient(#72a9e9,#dcecff);min-height:28px;margin-bottom:7px}.moment b{display:block;font-size:17px;color:var(--deep)}.moment span{font-size:12px;color:var(--muted)}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:14px}.person{padding:20px;border:1px solid var(--line);border-radius:19px;background:#fff}.person .score{font-size:38px;font-weight:900;color:var(--accent)}
+.question{font-size:20px;font-weight:800;color:var(--deep)}
+.choices{display:flex;gap:9px;flex-wrap:wrap}.choice{border:1px solid #cbdbea;background:#fff;color:var(--ink);border-radius:999px;padding:10px 15px;font-weight:750;cursor:pointer}.choice.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+textarea{width:100%;min-height:90px;border:1px solid #cbdbea;border-radius:15px;padding:13px;font:inherit;resize:vertical}.result{display:none;margin-top:14px;padding:14px;background:#fff;border:1px solid var(--line);border-radius:14px}
+.flow{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}.step{padding:14px 17px;border-radius:16px;background:#fff;border:1px solid var(--line);font-weight:850;text-align:center}.arr{font-size:24px;color:var(--accent)}
+.big{font-size:23px;font-weight:850;color:var(--deep)}a{color:#226fc7}.next{display:block;text-align:center;text-decoration:none;background:var(--deep);color:#fff;padding:16px;border-radius:16px;font-weight:850;margin-top:28px}
+@media(max-width:650px){.day{grid-template-columns:repeat(3,1fr)}.compare{grid-template-columns:1fr}.progress{font-size:12px}}
+</style></head><body>
+<header><div class="top"><div class="logo">HOS</div><div>Вводный курс</div><div class="progress">Занятие 3 из 10</div></div></header>
+<main>
+<section class="card hero"><div class="kicker">ЛЕКЦИЯ 3</div><h1>Почему одного хорошего состояния недостаточно?</h1>
+<p class="lead">Высокий СУТ — это хорошо. Но говорит ли один счастливый момент о том, насколько хорошо устроена жизнь человека?</p></section>
+
+<h2>СУТ живёт в моменте</h2>
+<div class="card blue"><p>В первых двух занятиях мы научились замечать и определять текущий СУТ. Но СУТ может быстро меняться — иногда несколько раз за один день.</p>
+<div class="day">
+<div class="moment"><div class="bar" style="height:46px"></div><b>+2</b><span>утро</span></div>
+<div class="moment"><div class="bar" style="height:88px"></div><b>+7</b><span>хорошая новость</span></div>
+<div class="moment"><div class="bar" style="height:30px"></div><b>−3</b><span>конфликт</span></div>
+<div class="moment"><div class="bar" style="height:72px"></div><b>+5</b><span>интересная работа</span></div>
+<div class="moment"><div class="bar" style="height:38px"></div><b>−1</b><span>усталость</span></div>
+<div class="moment"><div class="bar" style="height:82px"></div><b>+6</b><span>друзья</span></div>
+</div><p class="note">Значения иллюстративны. Они показывают изменчивость СУТ, а не «правильную» реакцию на эти события.</p></div>
+
+<h2>Одинаковый СУТ — разные жизни</h2>
+<div class="compare">
+<div class="person"><div class="score">СУТ +7</div><p>Человек проводит прекрасный вечер с друзьями. Но работа давно не устраивает, отношения разрушены, финансовые проблемы откладываются, собственные планы почти не реализуются.</p></div>
+<div class="person"><div class="score">СУТ +7</div><p>Другой человек тоже проводит прекрасный вечер. При этом у него есть интересная деятельность, устойчивые отношения, собственные цели и возможность последовательно реализовывать планы.</p></div>
+</div>
+<div class="card gold"><p><strong>В данный момент им может быть одинаково хорошо.</strong> Но одного значения СУТ недостаточно, чтобы сказать, что их жизнь организована одинаково.</p></div>
+
+<h2>И наоборот</h2>
+<div class="card"><p>Человек с хорошо организованной жизнью может получить плохую новость, заболеть, поссориться с близким или потерпеть неудачу. Его СУТ временно снизится.</p>
+<p class="big">Низкий СУТ сегодня ещё не означает низкий ИУТ.</p>
+<p>Так же как высокий СУТ сегодня ещё не означает высокий ИУТ.</p></div>
+
+<h2>Зачем тогда нужен ИУТ?</h2>
+<div class="card green"><p>В HOS <strong>ИУТ — более устойчивая характеристика</strong>, связанная не с отдельным сегодняшним переживанием, а с тем, как человек способен организовывать собственную жизнь.</p>
+<div class="flow"><div class="step">СУТ<br><span class="note">как мне сейчас</span></div><div class="arr">≠</div><div class="step">ИУТ<br><span class="note">как я способен организовывать жизнь</span></div></div>
+<p class="note" style="text-align:center">Это различие не означает, что СУТ и ИУТ никак не связаны. Оно означает, что один нельзя определять непосредственно по другому.</p></div>
+
+<h2>Проверьте на себе</h2>
+<div class="card blue"><p class="question">Вспомните момент за последние дни, когда ваш СУТ был заметно выше или ниже обычного.</p>
+<textarea id="episode" placeholder="Что произошло? Как изменилось ваше состояние?"></textarea>
+<p class="question">Изменилась ли в этот момент сама организация вашей жизни?</p>
+<div class="choices" id="choices"><button class="choice">Да, существенно</button><button class="choice">Скорее нет</button><button class="choice">Трудно сказать</button></div>
+<div class="result" id="result"></div></div>
+
+<h2>Важное ограничение HOS</h2>
+<div class="card gold"><p>Было бы заманчиво сказать: «ИУТ — это просто средний СУТ за долгое время». <strong>Но в текущей модели HOS это не принято.</strong></p>
+<p>ИУТ не вычисляется прямым усреднением или интегрированием СУТ. Возможная статистическая связь между долговременным распределением СУТ и ИУТ — <strong>рабочая проверяемая гипотеза</strong>, а не закон HOS.</p></div>
+
+<h2>Что говорит наука?</h2>
+<div class="card violet"><p><strong>Организация экономического сотрудничества и развития (ОЭСР; OECD — Organisation for Economic Co-operation and Development)</strong> различает несколько компонентов субъективного благополучия. В частности, <em>affect</em> относится к чувствам и эмоциональным состояниям, обычно привязанным к определённому моменту или периоду, а <em>life evaluation</em> — к рефлексивной оценке жизни в целом или её аспектов.</p>
+<p>Это поддерживает сам принцип различения <strong>текущего переживания</strong> и <strong>более общей оценки жизни</strong>. Но научные понятия OECD не тождественны СУТ и ИУТ: HOS идёт дальше и связывает ИУТ с организацией жизни и уровнем развития личности.</p>
+<p class="note">Источник: OECD (2025), <em>OECD Guidelines on Measuring Subjective Well-being (2025 Update)</em>.</p>
+<p><a href="https://www.oecd.org/en/publications/oecd-guidelines-on-measuring-subjective-well-being-2025-update_9203632a-en.html" target="_blank" rel="noopener">Открыть источник OECD ↗</a></p></div>
+
+<h2>Главное за 30 секунд</h2>
+<div class="card green"><p><strong>СУТ отвечает на вопрос «как мне сейчас?» и может быстро меняться.</strong></p>
+<p>Один высокий или низкий СУТ ничего не доказывает об ИУТ.</p>
+<p><strong>ИУТ более инертен</strong> и связан с организацией жизни и развитием личности. Поэтому для понимания человека недостаточно поймать один хороший — или один плохой — момент.</p></div>
+
+<h2>Маленький эксперимент</h2>
+<div class="card gold"><p>Сегодня при очередном заметном изменении СУТ задайте себе два вопроса:</p>
+<p><strong>1. Что изменило моё состояние прямо сейчас?</strong><br><strong>2. Изменило ли это устройство моей жизни — или только моё текущее переживание?</strong></p>
+<p>Задача — начать различать <strong>изменение состояния</strong> и <strong>изменение жизни</strong>.</p></div>
+
+<a class="next" href="#" onclick="return false">Дальше: что значит развиваться? →</a>
+</main>
+<script>
+document.querySelectorAll('#choices .choice').forEach(b=>b.addEventListener('click',()=>{
+ document.querySelectorAll('#choices .choice').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+ const r=document.getElementById('result'); r.style.display='block';
+ r.innerHTML='<strong>Наблюдение:</strong> изменение СУТ и изменение организации жизни — разные события. Именно это различие важно научиться замечать перед дальнейшим разговором об ИУТ.';
+}));
+</script></body></html>
