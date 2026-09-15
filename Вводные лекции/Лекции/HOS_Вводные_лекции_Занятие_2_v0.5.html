@@ -1,0 +1,96 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HOS — Занятие 2. Как определить свой СУТ?</title><style>
+:root{--ink:#183653;--deep:#153e75;--muted:#65778e;--bg:#f5f8fc;--line:#dce6f0;--accent:#347fd7}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.58 Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
+header{position:sticky;top:0;background:#fffffff2;border-bottom:1px solid var(--line);z-index:5}.top,main{max-width:840px;margin:auto}.top{padding:12px 18px;display:flex;gap:12px;align-items:center}.logo{background:var(--accent);color:#fff;font-weight:900;padding:7px 12px;border-radius:12px}.p{margin-left:auto;color:var(--muted);font-size:14px}
+main{padding:30px 18px 70px}.card{background:#fff;border:1px solid var(--line);border-radius:22px;padding:22px;margin:17px 0;box-shadow:0 10px 28px #244e7510}.hero{background:linear-gradient(135deg,#edf7ff,#f6efff);padding:28px}
+h1{font-size:clamp(34px,6vw,50px);line-height:1.08;color:var(--deep);margin:6px 0 12px}h2{color:#17477f;font-size:28px;margin:38px 0 13px}.lead{font-size:20px;color:#405a78}.k{font-weight:850;color:var(--accent)}
+.axis{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:15px}.rep{padding:16px 8px;border-radius:17px;text-align:center;border:1px solid var(--line);background:#fff}.rep b{display:block;font-size:23px}.rep span{font-size:13px;color:var(--muted)}
+.r1{background:#f4efff}.r2{background:#fff0ec}.r3{background:#f3f5f7}.r4{background:#fff8df}.r5{background:#edf9ef}
+.mix{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.emo{border:1px solid var(--line);background:#fff;border-radius:16px;padding:12px 8px;text-align:center}.emo input{width:100%;accent-color:var(--accent)}.emo output{font-size:24px;font-weight:900;color:var(--deep)}
+.note{font-size:14px;color:var(--muted)}.blue{background:#edf6ff}.gold{background:#fff8df}.green{background:#eef9f1}.violet{background:#f4f0ff;border-left:5px solid #7968d5}
+label{font-weight:800;display:block;margin-bottom:10px}#sut{width:100%;accent-color:var(--accent)}.value{text-align:center;font-size:46px;font-weight:900;color:var(--accent)}.ends{display:flex;justify-content:space-between;color:var(--muted)}
+button{border:0;background:var(--deep);color:white;border-radius:14px;padding:13px 18px;font-weight:800;cursor:pointer}.result{display:none;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;margin-top:14px}
+.flow{text-align:center;font-size:19px;font-weight:800;color:var(--deep)}a{color:#226fc7}.next{display:block;text-decoration:none;text-align:center;background:var(--deep);color:#fff;padding:16px;border-radius:16px;font-weight:850;margin-top:28px}
+@media(max-width:650px){.axis,.mix{grid-template-columns:1fr}.p{font-size:12px}}
+</style>
+<style>
+.tone-table{width:100%;border-collapse:separate;border-spacing:0;font-size:14px;overflow:hidden}
+.tone-table th{background:#edf6ff;color:#17477f;text-align:left;padding:11px;border-bottom:1px solid #dce6f0}
+.tone-table td{padding:9px 11px;border-bottom:1px solid #e5edf5;vertical-align:top}
+.tone-table td:first-child{font-weight:900;text-align:center;width:62px;color:#153e75}
+.tone-table tr:last-child td{border-bottom:0}
+.table-wrap{overflow-x:auto;border:1px solid #dce6f0;border-radius:16px;background:#fff}
+</style>
+</head><body><header><div class="top"><div class="logo">HOS</div><div>Вводный курс</div><div class="p">Занятие 2 из 10</div></div></header><main>
+<section class="card hero"><div class="k">ЛЕКЦИЯ 2</div><h1>Как определить свой СУТ?</h1><p class="lead">Шкалу −10…+10 вы уже знаете. Теперь разберёмся, что находится внутри этой оценки.</p></section>
+
+<h2>Мы редко чувствуем что-то одно</h2><div class="card blue"><p>«Мне тревожно», «я обижен», «мне хорошо» — это полезные описания, но реальное переживание может быть сложнее. В HOS мы используем простую модель: эмоциональное состояние можно рассматривать через сочетание <strong>пяти базовых эмоций</strong>.</p><p>Это модель — карта для самонаблюдения, а не утверждение, что психологическая наука сводит все эмоции именно к этим пяти.</p></div>
+
+<h2>Пять базовых эмоциональных реперов HOS</h2><div class="card">
+<div class="axis"><div class="rep r1"><b>−10</b>Страх<span>замирание, зажатость</span></div><div class="rep r2"><b>−5</b>Гнев<span>активная агрессивная реакция</span></div><div class="rep r3"><b>0</b>Грусть<span>значимость, потеря</span></div><div class="rep r4"><b>+5</b>Радость достижения<span>активная радость результата</span></div><div class="rep r5"><b>+10</b>Радость присутствия<span>гармония, спокойная полнота</span></div></div>
+<p class="note">Это реперы шкалы, а не автоматические значения любой эмоции данного типа. Слабый гнев, например, не обязан означать СУТ −5.</p></div>
+
+
+<h2>А как быть с телом?</h2>
+<div class="card blue">
+<p>На то, как нам сейчас, влияют не только эмоции. <strong>Боль, усталость, голод, физический комфорт или удовольствие</strong> могут сильно менять наше состояние.</p>
+<p>Но в HOS физические ощущения не образуют отдельную шкалу СУТ. При определении СУТ нас интересует, <strong>как телесные ощущения отражаются в эмоциональном состоянии</strong>.</p>
+<p>Например, одна и та же физическая усталость после бессмысленной работы и после долгожданного похода может сопровождаться совершенно разным эмоциональным состоянием — и разным СУТ.</p>
+<p><strong>Поэтому эмоциональное состояние является основной шкалой определения СУТ, а физические ощущения учитываются через их влияние на него.</strong></p>
+</div>
+<h2>Эмоциональное разнообразие</h2><div class="card gold"><p>Реальное состояние может содержать несколько базовых эмоций одновременно и с разной интенсивностью. В HOS это используется как модель <strong>эмоционального разнообразия</strong>.</p><p class="flow">5 базовых эмоций → их сочетание и интенсивность → целостное переживание → СУТ</p><p class="note">СУТ не вычисляется как среднее или сумма пяти значений.</p></div>
+
+
+<h2>Калибровочная карта эмоциональных состояний</h2>
+<div class="card">
+<p>Пять базовых эмоций задают основные реперы. Но между ними находится множество привычных чувств и эмоциональных состояний. В HOS используется следующая <strong>калибровочная карта СУТ</strong>:</p>
+<div class="table-wrap"><table class="tone-table">
+<thead><tr><th>СУТ</th><th>Калибровочные состояния и чувства</th></tr></thead><tbody>
+<tr><td>+10</td><td>блаженство; глубокая радость присутствия; переживание безусловного счастья</td></tr>
+<tr><td>+9</td><td>восторг; экстатическая радость; глубокое переживание красоты/единства; радость присутствия + сильная радость достижения</td></tr>
+<tr><td>+8</td><td>творческое вдохновение; глубокое воодушевление; сильный душевный подъём</td></tr>
+<tr><td>+7</td><td>энтузиазм; воодушевление; радостная увлечённость; сильный интерес на фоне радости присутствия</td></tr>
+<tr><td>+6</td><td>удовольствие; наслаждение; радостная удовлетворённость; спокойная выраженная радость</td></tr>
+<tr><td>+5</td><td>выраженная радость достижения; успех; оптимизм; удовлетворение от хорошо сделанного дела</td></tr>
+<tr><td>+4</td><td>предвкушение успеха; сильный интерес; «белая зависть»; удовлетворённость продвижением</td></tr>
+<tr><td>+3</td><td>интерес; увлечённость; любопытство; приятное возбуждение; надежда</td></tr>
+<tr><td>+2</td><td>позитивное удивление; лёгкая радость; приятное ожидание; спокойная удовлетворённость</td></tr>
+<tr><td>+1</td><td>лёгкий позитивный настрой; слабый интерес; небольшая удовлетворённость</td></tr>
+<tr><td>0</td><td>покой; эмоциональная нейтральность; светлая грусть</td></tr>
+<tr><td>−1</td><td>скепсис; сомнение; лёгкое раздражение; лёгкое беспокойство; досада</td></tr>
+<tr><td>−2</td><td>разочарование; беспокойство; лёгкая обида; печаль с отрицательными примесями</td></tr>
+<tr><td>−3</td><td>раздражение; тревога; обида; фрустрация; заметное недовольство</td></tr>
+<tr><td>−4</td><td>сильная обида; зависть; ревность; выраженная тревога; тоска с отрицательными компонентами</td></tr>
+<tr><td>−5</td><td>сильный гнев; боязнь; сильная ревность/зависть; острое переживание неудачи</td></tr>
+<tr><td>−6</td><td>ярость; тяжёлое горе; мучительная ревность; острый стыд</td></tr>
+<tr><td>−7</td><td>унижение; позор; тяжёлое переживание угрозы или потери</td></tr>
+<tr><td>−8</td><td>отчаяние; безысходность; очень сильный страх</td></tr>
+<tr><td>−9</td><td>глубокое отчаяние; паническое состояние; предельная безысходность</td></tr>
+<tr><td>−10</td><td>ужас; панический/предельный страх</td></tr>
+</tbody></table></div>
+<p class="note"><strong>Важно:</strong> это калибровочная карта, а не словарь фиксированных соответствий. Название чувства само по себе не определяет СУТ: учитываются его интенсивность и сочетание базовых эмоциональных компонентов. Дополнительные состояния сверх пяти базовых реперов в KB имеют статус рабочих калибровочных примеров и требуют проверки на практике.</p>
+</div>
+<h2>Разберите своё состояние</h2><div class="card"><p><strong>Не пытайтесь получить «правильные проценты».</strong> Просто отметьте, насколько каждая составляющая сейчас заметна.</p><div class="mix">
+<div class="emo">Страх<output>0</output><input type="range" min="0" max="100" value="0"></div>
+<div class="emo">Гнев<output>0</output><input type="range" min="0" max="100" value="0"></div>
+<div class="emo">Грусть<output>0</output><input type="range" min="0" max="100" value="0"></div>
+<div class="emo">Радость достижения<output>0</output><input type="range" min="0" max="100" value="0"></div>
+<div class="emo">Радость присутствия<output>0</output><input type="range" min="0" max="100" value="0"></div>
+</div><p class="note">Шкалы интенсивности независимы: значения не обязаны в сумме давать 100%.</p></div>
+
+<h2>Теперь определите СУТ</h2><div class="card green"><label>Посмотрите на всё переживание целиком. Где оно находится на шкале СУТ?</label><input id="sut" type="range" min="-10" max="10" value="0"><div class="value" id="sv">0</div><div class="ends"><span>−10</span><span>0</span><span>+10</span></div><button id="fix">Зафиксировать</button><div class="result" id="res"></div></div>
+
+<div class="card blue"><strong>Почему нельзя просто посчитать?</strong><p>Потому что в текущей модели HOS формальной функции, переводящей интенсивности пяти эмоций в СУТ, нет. СУТ остаётся <strong>интроспективной оценкой целостного состояния</strong>. Пять реперов помогают человеку калибровать эту оценку.</p></div>
+
+<h2>Что говорит наука?</h2><div class="card violet"><p>Научные модели базовых эмоций различаются по числу и составу эмоций. Исходные материалы HOS сопоставляют несколько таких подходов и используют пятикомпонентную модель как собственную практическую карту эмоционального разнообразия.</p><p><strong>Следовательно:</strong> существование эмоционального разнообразия и сложных сочетаний переживаний имеет научные аналоги, но именно пять реперов и их размещение на шкале СУТ являются конструкцией HOS и требуют собственной эмпирической проверки.</p></div>
+
+<h2>Главное за 30 секунд</h2><div class="card green"><p><strong>−10 страх ← −5 гнев ← 0 грусть → +5 радость достижения → +10 радость присутствия.</strong></p><p>Это пять базовых эмоциональных реперов HOS. Реальное состояние может быть их сложным сочетанием. Сначала попробуйте увидеть это сочетание, а затем оцените состояние целиком — получите свой текущий СУТ.</p></div>
+
+<h2>Маленький эксперимент</h2><div class="card gold"><p>Два-три раза сегодня сначала определите, <strong>какие из пяти базовых эмоций присутствуют и насколько сильно</strong>, и только потом поставьте СУТ. Сравните: легче ли так понимать, почему вы выбрали именно это число?</p></div>
+<a class="next" href="#" onclick="return false">Дальше: почему одного хорошего состояния недостаточно? →</a>
+<script>
+document.querySelectorAll('.emo input').forEach(x=>{const o=x.parentElement.querySelector('output');x.oninput=()=>o.value=x.value;x.oninput()});
+const s=document.getElementById('sut'),sv=document.getElementById('sv');s.oninput=()=>{let n=+s.value;sv.textContent=n>0?'+'+n:n};s.oninput();
+document.getElementById('fix').onclick=()=>{let vals=[...document.querySelectorAll('.emo')].map(e=>e.childNodes[0].textContent.trim()+': '+e.querySelector('input').value).join(' · ');let r=document.getElementById('res');r.style.display='block';r.innerHTML='<strong>Эмоциональный профиль:</strong> '+vals+'<br><strong>СУТ:</strong> '+sv.textContent};
+</script></main></body></html>
