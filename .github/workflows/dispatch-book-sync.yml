@@ -1,0 +1,78 @@
+name: Dispatch HOS book synchronization
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  check-and-dispatch:
+    if: github.repository == 'Andreevvs/HOS' && github.ref == 'refs/heads/main' && !github.event.deleted
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout pushed main with complete history
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Test change detection and dispatch request
+        run: python3 -m unittest -v tests.test_book_sync_dispatch
+
+      - name: Compare complete book directory before and after push
+        id: book
+        run: python3 scripts/dispatch_book_sync.py detect
+        env:
+          PUSH_BEFORE: ${{ github.event.before }}
+          PUSH_AFTER: ${{ github.event.after }}
+
+      - name: Check dispatcher App configuration
+        if: steps.book.outputs.changed == 'true'
+        env:
+          APP_ID: ${{ vars.HOS_WEB_DISPATCH_APP_ID }}
+          APP_PRIVATE_KEY: ${{ secrets.HOS_WEB_DISPATCH_APP_PRIVATE_KEY }}
+        run: |
+          if [ -z "$APP_ID" ] || [ -z "$APP_PRIVATE_KEY" ]; then
+            echo "::error::Configure HOS_WEB_DISPATCH_APP_ID (variable) and HOS_WEB_DISPATCH_APP_PRIVATE_KEY (secret) in HOS. Never print their values."
+            exit 1
+          fi
+
+      - name: Create short-lived token only for hos-web Actions
+        if: steps.book.outputs.changed == 'true'
+        id: dispatcher
+        uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349 # v2
+        with:
+          app-id: ${{ vars.HOS_WEB_DISPATCH_APP_ID }}
+          private-key: ${{ secrets.HOS_WEB_DISPATCH_APP_PRIVATE_KEY }}
+          owner: Andreevvs
+          repositories: hos-web
+          permission-actions: write
+
+      - name: Dispatch existing website synchronization workflow
+        if: steps.book.outputs.changed == 'true'
+        run: python3 scripts/dispatch_book_sync.py dispatch
+        env:
+          HOS_WEB_DISPATCH_TOKEN: ${{ steps.dispatcher.outputs.token }}
+
+      - name: Summarize result
+        if: always()
+        env:
+          BOOK_CHANGED: ${{ steps.book.outputs.changed }}
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          {
+            echo '### HOS → hos-web book synchronization'
+            echo "Dispatcher job: $JOB_STATUS"
+            if [ "$JOB_STATUS" != success ]; then
+              echo 'Check failed steps. No automatic retry is made; inspect hos-web Actions before retrying an uncertain dispatch.'
+            elif [ "$BOOK_CHANGED" = true ]; then
+              echo 'Book directory changed; GitHub accepted the target workflow dispatch.'
+              echo 'Check [hos-web synchronization runs](https://github.com/Andreevvs/hos-web/actions/workflows/sync-book.yml) for completion and a possible PR.'
+            else
+              echo 'Book directory unchanged: no token requested and no synchronization dispatched.'
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
